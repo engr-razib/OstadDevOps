@@ -1,0 +1,24 @@
+name: Display first-test-page.txt
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  display-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Display contents of test.txt
+        run: |
+          if [ -f first-test-page.txt ]; then
+            echo "Showing contents of first-test-page.txt:"
+            cat first-test-page.txt
+          else
+            echo "first-test-page.txt does not exist in the repository root."
+          fi
