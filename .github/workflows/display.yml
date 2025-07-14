@@ -14,7 +14,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display contents of test.txt
+      - name: Display contents of first-test-page.txt
         run: |
           if [ -f first-test-page.txt ]; then
             echo "Showing contents of first-test-page.txt:"
