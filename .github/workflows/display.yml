@@ -1,4 +1,4 @@
-name: Display first-test-page.txt
+name: Display hello.txt
 
 on:
   push:
@@ -14,11 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Display contents of first-test-page.txt
+      - name: Display contents of hello.txt
         run: |
-          if [ -f first-test-page.txt ]; then
-            echo "Showing contents of first-test-page.txt:"
-            cat first-test-page.txt
+          if [ -f hello.txt ]; then
+            echo "Showing contents of hello.txt:"
+            cat hello.txt
           else
-            echo "first-test-page.txt does not exist in the repository root."
-          fi
+            echo "hello.txt does not exist in the repository root."
