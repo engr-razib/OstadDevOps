@@ -21,3 +21,4 @@ jobs:
             cat hello.txt
           else
             echo "hello.txt does not exist in the repository root."
+          fi
