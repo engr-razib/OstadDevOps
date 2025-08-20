@@ -16,6 +16,7 @@ jobs:
 
       - name: Display contents of hello.txt
         run: |
+          cd ./1st-assignment/
           if [ -f hello.txt ]; then
             echo "Showing contents of hello.txt:"
             cat hello.txt
