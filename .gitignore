@@ -1,0 +1,4 @@
+/TerraformAssignment/.terraform
+TerraformAssignment/.terraform.lock.hcl
+*.tfstate
+TerraformAssignment/terraform.tfstate.backup

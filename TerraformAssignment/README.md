@@ -3,6 +3,9 @@
 ## 📌 Objective
 Use Terraform to provision and then clean up AWS resources (EC2 + S3).
 
+## Documentation link:
+https://docs.google.com/document/d/1HwlNQDt-ojQltXRuUJwhdoroCub448kAv7z4GsLqmJo/edit?usp=sharing
+
 ---
 
 ## 📂 Project Structure
