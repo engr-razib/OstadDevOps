@@ -2,3 +2,4 @@
 TerraformAssignment/.terraform.lock.hcl
 *.tfstate
 TerraformAssignment/terraform.tfstate.backup
+/CareerMate/frontend/node_modules

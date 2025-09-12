@@ -1,0 +1,119 @@
+- hosts: k8s
+  become: true
+  vars:
+    kube_version: "1.27.4-00"   # আপনি adjust করতে পারেন
+    pod_network_cidr: "10.244.0.0/16" # Flannel
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Disable swap (temporary)
+      shell: |
+        swapoff -a || true
+      args:
+        warn: false
+
+    - name: Disable swap in fstab (persist)
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*\s+swap\s+.*)$'
+        replace: '# \1'
+      ignore_errors: true
+
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Install containerd
+      apt:
+        name: containerd
+        state: present
+
+    - name: Ensure /etc/containerd exists
+      file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Generate containerd config and set SystemdCgroup
+      shell: |
+        containerd config default > /etc/containerd/config.toml
+        sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml || true
+        systemctl restart containerd
+      args:
+        warn: false
+
+    - name: Add Kubernetes apt repository GPG key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add Kubernetes apt repo
+      copy:
+        dest: /etc/apt/sources.list.d/kubernetes.list
+        content: "deb https://apt.kubernetes.io/ kubernetes-xenial main\n"
+
+    - name: Update apt after adding k8s repo
+      apt:
+        update_cache: yes
+
+    - name: Install kubeadm, kubelet, kubectl
+      apt:
+        name:
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+
+    - name: Hold kube packages
+      apt:
+        name: "{{ item }}"
+        state: present
+        allow_change_held_packages: true
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    - name: Initialize Kubernetes cluster (only if not initialized)
+      shell: |
+        kubeadm init --pod-network-cidr={{ pod_network_cidr }} --ignore-preflight-errors=Swap
+      args:
+        creates: /etc/kubernetes/admin.conf
+
+    - name: Create .kube dir for ubuntu user
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        mode: 0700
+
+    - name: copy admin.conf to ubuntu .kube/config
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        owner: ubuntu
+        mode: 0644
+
+    - name: Allow scheduling pods on control-plane (single-node)
+      shell: |
+        kubectl taint nodes --all node-role.kubernetes.io/control-plane- || true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Apply Flannel CNI (needs internet)
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      args:
+        warn: false
+      register: flannel_apply
