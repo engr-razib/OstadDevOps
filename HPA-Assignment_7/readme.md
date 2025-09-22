@@ -35,6 +35,7 @@ The objective of this assignment is to:
     limits:
       cpu: "500m"
       memory: "256Mi"
+  ```
 
 4. Create a Horizontal Pod Autoscaler (HPA)
 
@@ -42,7 +43,9 @@ Configure HPA to scale pods based on CPU utilization (or other metrics).
 
 Example:
 
+```
 kubectl autoscale deployment my-app --cpu-percent=50 --min=1 --max=10
+```
 
 5. Install and Configure k6
 
@@ -50,12 +53,15 @@ Install k6 on your local machine or use a containerized version.
 
 Verify installation:
 
+```
 k6 version
+```
 
 6. Write a k6 Load Testing Script
 
 Example script.js:
 
+```
 import http from 'k6/http';
 import { sleep } from 'k6';
 
@@ -68,19 +74,24 @@ export default function () {
   http.get('http://<your-service-endpoint>');
   sleep(1);
 }
+```
 
 7. Run the k6 Load Test
 
 Execute the load test:
 
+```
 k6 run script.js
+```
 
 8. Monitor HPA Behavior
 
 Check the scaling status:
 
+```
 kubectl get hpa
 kubectl get pods -w
+```
 
 9. Observe Scaling
 
